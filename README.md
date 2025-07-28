@@ -186,5 +186,3 @@ The application is ready for deployment to any static hosting service. For Lovab
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ---
-
-**Built with ❤️ for Fortran by the Lovable AI Platform**
