@@ -30,7 +30,7 @@ class ApiService {
   }
 
   // Get all parts
-  async getAllParts(): Promise<Part[]> {
+  getAllParts = async (): Promise<Part[]> => {
     try {
       const response: AxiosResponse<Part[] | ApiResponse<Part[]>> = await this.api.get('/api/parts');
       return Array.isArray(response.data) ? response.data : response.data.data;
@@ -41,7 +41,7 @@ class ApiService {
   }
 
   // Get part by ID
-  async getPartById(id: string): Promise<Part> {
+  getPartById = async (id: string): Promise<Part> => {
     try {
       const response: AxiosResponse<Part | ApiResponse<Part>> = await this.api.get(`/api/parts/${id}`);
       return 'data' in response.data ? response.data.data : response.data;
@@ -52,7 +52,7 @@ class ApiService {
   }
 
   // Create new part
-  async createPart(partData: PartCreateInput): Promise<Part> {
+  createPart = async (partData: PartCreateInput): Promise<Part> => {
     try {
       const response: AxiosResponse<Part | ApiResponse<Part>> = await this.api.post('/api/parts', partData);
       return 'data' in response.data ? response.data.data : response.data;
@@ -63,7 +63,7 @@ class ApiService {
   }
 
   // Update part
-  async updatePart(id: string, partData: Partial<PartCreateInput>): Promise<Part> {
+  updatePart = async (id: string, partData: Partial<PartCreateInput>): Promise<Part> => {
     try {
       const response: AxiosResponse<Part | ApiResponse<Part>> = await this.api.put(`/api/parts/${id}`, partData);
       return 'data' in response.data ? response.data.data : response.data;
@@ -74,7 +74,7 @@ class ApiService {
   }
 
   // Delete part
-  async deletePart(id: string): Promise<void> {
+  deletePart = async (id: string): Promise<void> => {
     try {
       await this.api.delete(`/api/parts/${id}`);
     } catch (error) {
@@ -84,7 +84,7 @@ class ApiService {
   }
 
   // Search parts
-  async searchParts(searchParams: PartSearchParams): Promise<Part[]> {
+  searchParts = async (searchParams: PartSearchParams): Promise<Part[]> => {
     try {
       const params = new URLSearchParams();
       Object.entries(searchParams).forEach(([key, value]) => {

@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 export const useAllParts = () => {
   return useQuery({
     queryKey: ['parts'],
-    queryFn: apiService.getAllParts,
+    queryFn: () => apiService.getAllParts(),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
@@ -37,7 +37,7 @@ export const useCreatePart = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: apiService.createPart,
+    mutationFn: (data: PartCreateInput) => apiService.createPart(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['parts'] });
       toast({
@@ -87,7 +87,7 @@ export const useDeletePart = () => {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: apiService.deletePart,
+    mutationFn: (id: string) => apiService.deletePart(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['parts'] });
       toast({

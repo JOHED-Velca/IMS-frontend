@@ -1,11 +1,26 @@
+export interface Aisle {
+  id: number;
+  number: number;
+}
+
+export interface Shelf {
+  id: number;
+  side: string;
+  aisle: Aisle;
+}
+
+export interface Level {
+  id: number;
+  levelNumber: number;
+  shelf: Shelf;
+}
+
 export interface Part {
   id: string;
   name: string;
   sku: string;
   quantity: number;
-  aisle: string;
-  side: string;
-  level: string;
+  level: Level;
   description?: string;
   category?: string;
   price?: number;

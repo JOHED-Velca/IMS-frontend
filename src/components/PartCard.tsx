@@ -51,7 +51,7 @@ export const PartCard = ({ part, onEdit, onDelete, showActions = true }: PartCar
         <div className="flex items-center gap-2 text-sm">
           <MapPin className="h-4 w-4 text-primary" />
           <span className="text-muted-foreground">
-            Aisle {part.aisle}, {part.side} Side, Level {part.level}
+            Aisle {part.level.shelf.aisle.number}, {part.level.shelf.side} Side, Level {part.level.levelNumber}
           </span>
         </div>
 

@@ -82,7 +82,7 @@ export const PartDetailPanel = ({
               <div>
                 <p className="font-medium">Location</p>
                 <p className="text-muted-foreground">
-                  Aisle {part.aisle}, {part.side} Side, Level {part.level}
+                  Aisle {part.level.shelf.aisle.number}, {part.level.shelf.side} Side, Level {part.level.levelNumber}
                 </p>
               </div>
             </div>
