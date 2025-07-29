@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { Part, PartSearchParams, PartCreateInput, PartUpdateInput, ApiResponse, ApiError } from '@/types/part';
+import { Part, SearchPart, PartSearchParams, PartCreateInput, PartUpdateInput, ApiResponse, ApiError, PaginatedResponse } from '@/types/part';
 
 class ApiService {
   private baseURL: string;
@@ -27,6 +27,25 @@ class ApiService {
         return Promise.reject(apiError);
       }
     );
+  }
+
+  // Helper function to convert SearchPart to Part format
+  private convertSearchPartToPart = (searchPart: SearchPart): Part => {
+    return {
+      ...searchPart,
+      level: {
+        id: 0, // We don't have this info from search
+        levelNumber: searchPart.level,
+        shelf: {
+          id: 0, // We don't have this info from search
+          side: searchPart.side,
+          aisle: {
+            id: 0, // We don't have this info from search
+            number: searchPart.aisle
+          }
+        }
+      }
+    };
   }
 
   // Get all parts
@@ -93,8 +112,8 @@ class ApiService {
         }
       });
       
-      const response: AxiosResponse<Part[] | ApiResponse<Part[]>> = await this.api.get(`/api/parts/search?${params.toString()}`);
-      return Array.isArray(response.data) ? response.data : response.data.data;
+      const response: AxiosResponse<PaginatedResponse<SearchPart>> = await this.api.get(`/api/parts/search?${params.toString()}`);
+      return response.data.content.map(this.convertSearchPartToPart);
     } catch (error) {
       console.error('Error searching parts:', error);
       throw error;

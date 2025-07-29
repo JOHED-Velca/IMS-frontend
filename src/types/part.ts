@@ -29,6 +29,22 @@ export interface Part {
   updatedAt?: string;
 }
 
+export interface SearchPart {
+  id: string;
+  name: string;
+  sku: string;
+  quantity: number;
+  aisle: number;
+  side: string;
+  level: number;
+  description?: string;
+  category?: string;
+  price?: number;
+  supplier?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface PartSearchParams {
   name?: string;
   sku?: string;
@@ -59,6 +75,35 @@ export interface ApiResponse<T> {
   data: T;
   message?: string;
   error?: string;
+}
+
+export interface PaginatedResponse<T> {
+  content: T[];
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+    sort: {
+      sorted: boolean;
+      unsorted: boolean;
+      empty: boolean;
+    };
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  };
+  totalPages: number;
+  totalElements: number;
+  last: boolean;
+  size: number;
+  number: number;
+  sort: {
+    sorted: boolean;
+    unsorted: boolean;
+    empty: boolean;
+  };
+  numberOfElements: number;
+  first: boolean;
+  empty: boolean;
 }
 
 export interface ApiError {
