@@ -6,6 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { Layout } from "@/components/Layout";
 import { SearchPage } from "@/pages/SearchPage";
+import { AddPage } from "@/pages/AddPage";
+import { MapPage } from "@/pages/MapPage";
+import { ListPage } from "@/pages/ListPage";
 import { PartDetailPage } from "@/pages/PartDetailPage";
 import NotFound from "./pages/NotFound";
 
@@ -21,6 +24,10 @@ const App = () => (
           <Layout>
             <Routes>
               <Route path="/" element={<SearchPage />} />
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="/add" element={<AddPage />} />
+              <Route path="/map" element={<MapPage />} />
+              <Route path="/list" element={<ListPage />} />
               <Route path="/part/:id" element={<PartDetailPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
