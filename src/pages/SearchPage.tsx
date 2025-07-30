@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 export const SearchPage = () => {
   const [searchParams, setSearchParams] = useState<PartSearchParams>({});
   const [isSearching, setIsSearching] = useState(false);
+  const [hasPerformedSearch, setHasPerformedSearch] = useState(false);
   
   // Use search query when there are search parameters, otherwise get all parts
   const hasSearchParams = Object.values(searchParams).some(value => !!value);
@@ -28,14 +29,15 @@ export const SearchPage = () => {
 
   const deletePartMutation = useDeletePart();
 
-  // Determine which data to show
-  const parts = hasSearchParams ? searchResults : allParts;
-  const isLoading = hasSearchParams ? isLoadingSearch : isLoadingAll;
-  const error = hasSearchParams ? searchError : allPartsError;
+  // Only show parts if a search has been performed
+  const parts = hasPerformedSearch && hasSearchParams ? searchResults : undefined;
+  const isLoading = hasSearchParams ? isLoadingSearch : false;
+  const error = hasSearchParams ? searchError : null;
 
   const handleSearch = (params: PartSearchParams) => {
     setSearchParams(params);
     setIsSearching(true);
+    setHasPerformedSearch(true);
     // Reset searching state after a brief delay to show feedback
     setTimeout(() => setIsSearching(false), 500);
   };
@@ -83,7 +85,17 @@ export const SearchPage = () => {
       {isLoading ? (
         <div className="flex justify-center items-center py-12">
           <Loader2 className="h-8 w-8 animate-spin" />
-          <span className="ml-2">Loading parts...</span>
+          <span className="ml-2">Searching parts...</span>
+        </div>
+      ) : !hasPerformedSearch ? (
+        <div className="text-center py-12">
+          <Package className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold mb-2">
+            Search Your Inventory
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            Use the search bar above to find parts by name, SKU, location, or category.
+          </p>
         </div>
       ) : parts && parts.length > 0 ? (
         <div className="space-y-4">
@@ -91,15 +103,16 @@ export const SearchPage = () => {
             <p className="text-sm text-muted-foreground">
               {parts.length} part{parts.length !== 1 ? 's' : ''} found
             </p>
-            {hasSearchParams && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={() => handleSearch({})}
-              >
-                Show All Parts
-              </Button>
-            )}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => {
+                handleSearch({});
+                setHasPerformedSearch(false);
+              }}
+            >
+              Clear Search
+            </Button>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -118,19 +131,20 @@ export const SearchPage = () => {
         <div className="text-center py-12">
           <Package className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
           <h3 className="text-lg font-semibold mb-2">
-            {hasSearchParams ? "No parts found" : "No parts available"}
+            No parts found
           </h3>
           <p className="text-muted-foreground mb-4">
-            {hasSearchParams 
-              ? "Try adjusting your search criteria." 
-              : "Start by adding some parts to your inventory."
-            }
+            Try adjusting your search criteria or search for different terms.
           </p>
-          {hasSearchParams && (
-            <Button variant="outline" onClick={() => handleSearch({})}>
-              Clear Search
-            </Button>
-          )}
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              handleSearch({});
+              setHasPerformedSearch(false);
+            }}
+          >
+            Clear Search
+          </Button>
         </div>
       )}
     </div>
