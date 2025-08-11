@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { PartCreateInput } from "@/types/part";
+import { useEffect, useState } from "react";
+import { apiService } from "@/services/ApiService";
+import { PartCreateInput, Level } from "@/types/part";
 import { useAllParts, useCreatePart } from "@/hooks/useParts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,11 @@ export const AddPage = () => {
 
   const [errors, setErrors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [levels, setLevels] = useState<Level[]>([]);
+
+  useEffect(() => {
+    apiService.getAllLevels().then(setLevels).catch(console.error);
+  }, []);
 
   const { data: existingParts } = useAllParts();
   const createPartMutation = useCreatePart();
@@ -83,8 +89,26 @@ export const AddPage = () => {
         side: "",
         level: "",
       });
-    } catch (error) {
-      setErrors(["Failed to create part. Please try again."]);
+    } catch (error: any) {
+      console.error('Full error details:', error);
+      
+      // Extract detailed error messages from backend
+      const errorMessages = [];
+      
+      if (error.details?.errors) {
+        // Handle field-specific validation errors from backend
+        Object.entries(error.details.errors).forEach(([field, message]) => {
+          errorMessages.push(`${field}: ${message}`);
+        });
+      } else if (error.details?.message) {
+        errorMessages.push(error.details.message);
+      } else if (error.message) {
+        errorMessages.push(error.message);
+      } else {
+        errorMessages.push("Failed to create part. Please try again.");
+      }
+      
+      setErrors(errorMessages);
     } finally {
       setIsSubmitting(false);
     }
@@ -167,9 +191,11 @@ export const AddPage = () => {
                   <Label htmlFor="aisle">Aisle *</Label>
                   <Input
                     id="aisle"
+                    type="number"
+                    min="1"
                     value={formData.aisle}
                     onChange={(e) => handleInputChange("aisle", e.target.value)}
-                    placeholder="e.g., A1"
+                    placeholder="e.g., 1"
                     required
                   />
                 </div>
@@ -192,13 +218,20 @@ export const AddPage = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="level">Level *</Label>
-                  <Input
-                    id="level"
+                  <Select
                     value={formData.level}
-                    onChange={(e) => handleInputChange("level", e.target.value)}
-                    placeholder="e.g., 1"
-                    required
-                  />
+                    onValueChange={(value) => handleInputChange("level", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Level"/>
+                    </SelectTrigger>
+                    <option value="">Select Level</option>
+                    {levels.map(level => (
+                      <option key={level.id} value={level.id}>
+                        Aisle {level.shelf.aisle.number}, {level.shelf.side} Side, Level {level.levelNumber}
+                      </option>
+                    ))}
+                  </Select>
                 </div>
               </div>
 

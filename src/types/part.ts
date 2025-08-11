@@ -12,7 +12,14 @@ export interface Shelf {
 export interface Level {
   id: number;
   levelNumber: number;
-  shelf: Shelf;
+  shelf: {
+    id: number;
+    side: string;
+    aisle: {
+      id: number;
+      number: number;
+    };
+  };
 }
 
 export interface Part {

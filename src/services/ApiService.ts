@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { Part, SearchPart, PartSearchParams, PartCreateInput, PartUpdateInput, ApiResponse, ApiError, PaginatedResponse } from '@/types/part';
+import { Part, Level, SearchPart, PartSearchParams, PartCreateInput, PartUpdateInput, ApiResponse, ApiError, PaginatedResponse } from '@/types/part';
 
 class ApiService {
   private baseURL: string;
@@ -48,6 +48,17 @@ class ApiService {
     };
   }
 
+  //Get all levels
+  getAllLevels = async (): Promise<Level[]> => {
+  try {
+    const response: AxiosResponse<Level[]> = await this.api.get('/api/levels');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching levels:', error);
+    throw error;
+  }
+}
+
   // Get all parts
   getAllParts = async (): Promise<Part[]> => {
     try {
@@ -73,7 +84,25 @@ class ApiService {
   // Create new part
   createPart = async (partData: PartCreateInput): Promise<Part> => {
     try {
-      const response: AxiosResponse<Part | ApiResponse<Part>> = await this.api.post('/api/parts', partData);
+      // Transform flat input data to nested structure expected by backend
+      const transformedData = {
+        name: partData.name,
+        sku: partData.sku,
+        quantity: partData.quantity,
+        level: {
+          levelNumber: Number(partData.level),
+          shelf: {
+            side: partData.side,
+            aisle: {
+              number: Number(partData.aisle)
+            }
+          }
+        }
+      };
+
+      console.log('Sending data to backend:', transformedData);
+
+      const response: AxiosResponse<Part | ApiResponse<Part>> = await this.api.post('/api/parts', transformedData);
       return 'data' in response.data ? response.data.data : response.data;
     } catch (error) {
       console.error('Error creating part:', error);
