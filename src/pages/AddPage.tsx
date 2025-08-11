@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react";
-import { apiService } from "@/services/ApiService";
-import { PartCreateInput, Level } from "@/types/part";
+import { useState } from "react";
+import { PartCreateInput } from "@/types/part";
 import { useAllParts, useCreatePart } from "@/hooks/useParts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle, Package, Plus } from "lucide-react";
@@ -14,35 +12,20 @@ export const AddPage = () => {
   const [formData, setFormData] = useState<PartCreateInput>({
     name: "",
     sku: "",
-    quantity: 0,
-    aisle: "",
-    side: "",
-    level: "",
+    quantity: [],
   });
 
   const [errors, setErrors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [levels, setLevels] = useState<Level[]>([]);
-
-  useEffect(() => {
-    apiService.getAllLevels().then(setLevels).catch(console.error);
-  }, []);
 
   const { data: existingParts } = useAllParts();
   const createPartMutation = useCreatePart();
 
   const validateForm = (): string[] => {
     const newErrors: string[] = [];
-
-    // Required field validation
     if (!formData.name.trim()) newErrors.push("Name is required");
     if (!formData.sku.trim()) newErrors.push("SKU is required");
     if (formData.quantity < 0) newErrors.push("Quantity cannot be negative");
-    if (!formData.aisle.trim()) newErrors.push("Aisle is required");
-    if (!formData.side.trim()) newErrors.push("Shelf is required");
-    if (!formData.level.trim()) newErrors.push("Level is required");
-
-    // Check if part already exists (by SKU)
     if (existingParts && formData.sku.trim()) {
       const existingPart = existingParts.find(
         part => part.sku.toLowerCase() === formData.sku.toLowerCase()
@@ -51,7 +34,6 @@ export const AddPage = () => {
         newErrors.push("Part already exists");
       }
     }
-
     return newErrors;
   };
 
@@ -60,43 +42,28 @@ export const AddPage = () => {
       ...prev,
       [field]: value
     }));
-    // Clear errors when user starts typing
-    if (errors.length > 0) {
-      setErrors([]);
-    }
+    if (errors.length > 0) setErrors([]);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     const validationErrors = validateForm();
     if (validationErrors.length > 0) {
       setErrors(validationErrors);
       return;
     }
-
     setIsSubmitting(true);
     setErrors([]);
-
     try {
       await createPartMutation.mutateAsync(formData);
-      // Reset form on success
       setFormData({
         name: "",
         sku: "",
-        quantity: 0,
-        aisle: "",
-        side: "",
-        level: "",
+        quantity: [],
       });
     } catch (error: any) {
-      console.error('Full error details:', error);
-      
-      // Extract detailed error messages from backend
       const errorMessages = [];
-      
       if (error.details?.errors) {
-        // Handle field-specific validation errors from backend
         Object.entries(error.details.errors).forEach(([field, message]) => {
           errorMessages.push(`${field}: ${message}`);
         });
@@ -107,7 +74,6 @@ export const AddPage = () => {
       } else {
         errorMessages.push("Failed to create part. Please try again.");
       }
-      
       setErrors(errorMessages);
     } finally {
       setIsSubmitting(false);
@@ -186,55 +152,6 @@ export const AddPage = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="aisle">Aisle *</Label>
-                  <Input
-                    id="aisle"
-                    type="number"
-                    min="1"
-                    value={formData.aisle}
-                    onChange={(e) => handleInputChange("aisle", e.target.value)}
-                    placeholder="e.g., 1"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="side">Shelf *</Label>
-                  <Select 
-                    value={formData.side} 
-                    onValueChange={(value) => handleInputChange("side", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select shelf" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="LEFT">Left</SelectItem>
-                      <SelectItem value="RIGHT">Right</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="level">Level *</Label>
-                  <Select
-                    value={formData.level}
-                    onValueChange={(value) => handleInputChange("level", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Level"/>
-                    </SelectTrigger>
-                    <option value="">Select Level</option>
-                    {levels.map(level => (
-                      <option key={level.id} value={level.id}>
-                        Aisle {level.shelf.aisle.number}, {level.shelf.side} Side, Level {level.levelNumber}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-              </div>
-
               <div className="flex gap-4 pt-4">
                 <Button
                   type="submit"
@@ -261,10 +178,7 @@ export const AddPage = () => {
                     setFormData({
                       name: "",
                       sku: "",
-                      quantity: 0,
-                      aisle: "",
-                      side: "",
-                      level: "",
+                      quantity: [],
                     });
                     setErrors([]);
                   }}
